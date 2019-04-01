@@ -6,7 +6,7 @@
 #include <steem/plugins/json_rpc/json_rpc_plugin.hpp>
 #include <appbase/application.hpp>
 
-#define STEEM_sig_by_key_PLUGIN_NAME "sig_by_key"
+#define STEEM_sig_by_key_api_plugin_NAME "sig_by_key_api"
 
 namespace steem
 {
@@ -14,18 +14,18 @@ namespace plugins
 {
 namespace demo
 {
-class sig_by_key_plugin : public appbase::plugin<sig_by_key_plugin>
+class sig_by_key_api_plugin : public appbase::plugin<sig_by_key_api_plugin>
 {
 public:
-  sig_by_key_plugin(){};
-  virtual ~sig_by_key_plugin(){};
+  sig_by_key_api_plugin(){};
+  virtual ~sig_by_key_api_plugin(){};
 
   // 用以声明该插件依赖哪些插件
   APPBASE_PLUGIN_REQUIRES((steem::plugins::json_rpc::json_rpc_plugin))
   // 必须拥有的一个方法name，注册时用以唯一标识该插件
   static const std::string &name()
   {
-    static std::string name = STEEM_sig_by_key_PLUGIN_NAME;
+    static std::string name = STEEM_sig_by_key_api_plugin_NAME;
     return name;
   }
 
@@ -35,7 +35,7 @@ public:
   virtual void plugin_startup() override{};
   virtual void plugin_shutdown() override{};
 
-  std::shared_ptr<class sig_by_key> api;
+  std::shared_ptr<class sig_by_key_api> api;
 };
 } // namespace demo
 } // namespace plugins

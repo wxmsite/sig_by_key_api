@@ -14,7 +14,7 @@ namespace demo
 
 namespace detail
 {
-class sig_by_key_impl;
+class sig_by_key_api_impl;
 }
 struct UserSecretKey
 {
@@ -22,7 +22,8 @@ struct UserSecretKey
   relicxx::G2 b3;
   relicxx::G2 b4;
   relicxx::G1 b5;
-} struct Sig
+};
+struct Sig
 {
   relicxx::G2 c0;
   relicxx::G1 c5;
@@ -33,13 +34,14 @@ struct UserSecretKey
   relicxx::ZR x;
   relicxx::ZR y;
   relicxx::ZR z;
-} struct MasterPublicKey
+};
+struct MasterPublicKey
 {
   unsigned int l;
   relicxx::G1 hibeg1;
   vector<relicxx::G2> hG2;
   relicxx::GT n;
-}
+};
 // get_sig方法的输入参数
 struct get_sig_args
 {
@@ -56,16 +58,16 @@ struct get_sig_return
   Sig sig;
 };
 
-class sig_by_key
+class sig_by_key_api
 {
 public:
-  sig_by_key();
-  ~sig_by_key();
+  sig_by_key_api();
+  ~sig_by_key_api();
 
   DECLARE_API((get_sig))
 
 private:
-  std::unique_ptr<detail::sig_by_key_impl> my;
+  std::unique_ptr<detail::sig_by_key_api_impl> my;
 };
 } // namespace demo
 } // namespace plugins
