@@ -1,23 +1,23 @@
-file(GLOB HEADERS "include/steem/plugins/sig_by_key/*.hpp")
-add_library( sig_by_key_plugin
-        sig_by_key.cpp
+file(GLOB HEADERS "include/steem/plugins/sig_by_key_api/*.hpp")
+add_library( sig_by_key_api_plugin
+        sig_by_key_api.cpp
         )
 
 # 当该模块调用了其他模块的方法时，target_link_libraries需要将这些被调用的模块添加进来。
 # 下面的例子基本上是最小模块
-target_link_libraries( sig_by_key_plugin json_rpc_plugin steem_protocol appbase fc )
-target_include_directories( sig_by_key_plugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+target_link_libraries( sig_by_key_api_plugin json_rpc_plugin steem_protocol appbase fc )
+target_include_directories( sig_by_key_api_plugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 
 if( CLANG_TIDY_EXE )
     set_target_properties(
-            sig_by_key_plugin PROPERTIES
+            sig_by_key_api_plugin PROPERTIES
             CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
     )
 endif( CLANG_TIDY_EXE )
 
 install( TARGETS
-        sig_by_key_plugin
+        sig_by_key_api_plugin
 
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib

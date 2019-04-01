@@ -1,5 +1,5 @@
-#include <steem/plugins/sig_by_key/sig_by_key.hpp>
-#include <steem/plugins/sig_by_key/sig_by_key_plugin.hpp>
+#include <steem/plugins/sig_by_key_api/sig_by_key_api.hpp>
+#include <steem/plugins/sig_by_key_api/sig_by_key_api_plugin.hpp>
 
 namespace steem
 {
@@ -11,11 +11,11 @@ namespace demo
 namespace detail
 {
 
-class sig_by_key_impl
+class sig_by_key_api_impl
 {
 public:
-  sig_by_key_impl() {}
-  ~sig_by_key_impl() {}
+  sig_by_key_api_impl() {}
+  ~sig_by_key_api_impl() {}
 
   // 返回用户签名
   get_sig_return get_sig(const get_sig_args &args) const
@@ -32,6 +32,14 @@ public:
     sign(args.m, usk, sig, mpk);
     final.sig = sig;
     return final;
+  }
+  void set_group()
+  {
+    MasterPublicKey mpk;
+    relicxx::G2 msk;
+    setup(mpk,msk);
+    //发送一个mpk区块
+    
   }
 
 private:
@@ -89,22 +97,22 @@ private:
 };
 } // namespace detail
 
-sig_by_key::sig_by_key() : my(new detail::sig_by_key_impl())
+sig_by_key_api::sig_by_key_api() : my(new detail::sig_by_key_api_impl())
 {
-  JSON_RPC_REGISTER_API(STEEM_sig_by_key_PLUGIN_NAME);
+  JSON_RPC_REGISTER_API(STEEM_sig_by_key_api_plugin_NAME);
 }
 
-sig_by_key::~sig_by_key() {}
+sig_by_key_api::~sig_by_key_api() {}
 
 // 需要注意创建sig_by_key的时机，因为sig_by_key的构造函数中会调用JSON RPC插件去注册API，因此
-// 需要等JSON RPC先初始化好，plugin_initialize被调用时，会先注册sig_by_key_plugin的依赖
+// 需要等JSON RPC先初始化好，plugin_initialize被调用时，会先注册sig_by_key_api_plugin的依赖
 // 模块，因此可以确保此时JSON RPC插件此时已经注册完毕。
-void sig_by_key_plugin::plugin_initialize(const appbase::variables_map &options)
+void sig_by_key_api_plugin::plugin_initialize(const appbase::variables_map &options)
 {
-  api = std::make_shared<sig_by_key>();
+  api = std::make_shared<sig_by_key_api>();
 }
 
-DEFINE_LOCKLESS_APIS(sig_by_key, (get_sig))
+DEFINE_LOCKLESS_APIS(sig_by_key_api, (get_sig))
 } // namespace demo
 } // namespace plugins
 } // namespace steem
