@@ -1,5 +1,5 @@
 {
    "plugin_name": "sig_by_key_api",
-   "plugin_namespace": "sig_by_key_api",
+   "plugin_namespace": "sig_by_key",
    "plugin_project": "sig_by_key_api_plugin"
 }

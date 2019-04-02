@@ -12,7 +12,7 @@ namespace steem
 {
 namespace plugins
 {
-namespace demo
+namespace sig_by_key
 {
 class sig_by_key_api_plugin : public appbase::plugin<sig_by_key_api_plugin>
 {
@@ -37,6 +37,6 @@ public:
 
   std::shared_ptr<class sig_by_key_api> api;
 };
-} // namespace demo
+} // namespace sig_by_key
 } // namespace plugins
 } // namespace steem
