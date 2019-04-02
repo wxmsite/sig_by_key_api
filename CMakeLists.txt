@@ -1,4 +1,5 @@
 file(GLOB HEADERS "include/steem/plugins/sig_by_key_api/*.hpp")
+file(GLOB HEADERS "include/steem/plugins/sig_by_key_api/*.h")
 add_library( sig_by_key_api_plugin
         sig_by_key_api.cpp
         )
