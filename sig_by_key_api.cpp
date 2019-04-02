@@ -1,11 +1,13 @@
 #include <steem/plugins/sig_by_key_api/sig_by_key_api.hpp>
 #include <steem/plugins/sig_by_key_api/sig_by_key_api_plugin.hpp>
-
+#include <steem/plugins/sig_by_key_api/HibeGS.hpp>
+using namespace relicxx;
+using namespace forwardsec;
 namespace steem
 {
 namespace plugins
 {
-namespace demo
+namespace sig_by_key
 {
 
 namespace detail
@@ -16,34 +18,34 @@ class sig_by_key_api_impl
 public:
   sig_by_key_api_impl() {}
   ~sig_by_key_api_impl() {}
+  relicxx::PairingGroup group;
 
   // 返回用户签名
   get_sig_return get_sig(const get_sig_args &args) const
   {
     get_sig_return final{0};
-    UserSecretKey usk;
+    /*  UserSecretKey usk;
     usk.b0 = args.b0;
-    usk.b3 = args.b3;
+    usk.b3 = G2(args.b3);
     usk.b4 = args.b4;
     usk.b5 = args.b5;
     Sig sig;
     MasterPublicKey mpk;
     getMpk();
     sign(args.m, usk, sig, mpk);
-    final.sig = sig;
+    final.sig = sig; */
     return final;
   }
   void set_group()
   {
     MasterPublicKey mpk;
     relicxx::G2 msk;
-    setup(mpk,msk);
+    setup(mpk, msk);
     //发送一个mpk区块
-    
   }
 
 private:
-  void HibeGS::setup(MasterPublicKey &mpk, G2 &msk) const
+  void setup(MasterPublicKey &mpk, relicxx::G2 &msk) const
   {
     const unsigned int l = 4;
     ZR alpha = group.randomZR();
@@ -61,7 +63,7 @@ private:
     mpk.n = group.randomGT();
     msk = group.exp(mpk.g2, alpha);
   }
-  void HibeGS::sign(const ZR &m, const UserSecretKey &usk, Sig &sig, const MasterPublicKey &mpk)
+  void sign(const ZR &m, const UserSecretKey &usk, Sig &sig, const MasterPublicKey &mpk)
   {
     const ZR gUserID = group.hashListToZR(getUserID());
     const ZR gGroupID = group.hashListToZR(getGroupID());
@@ -94,6 +96,15 @@ private:
     relicxx::G2 msk;
     setup(mpk, msk);
   }
+  string getGroupID()
+  {
+    return "science";
+  }
+  //可能需要多种场景
+  string getUserID()
+  {
+    return "www";
+  }
 };
 } // namespace detail
 
@@ -113,6 +124,6 @@ void sig_by_key_api_plugin::plugin_initialize(const appbase::variables_map &opti
 }
 
 DEFINE_LOCKLESS_APIS(sig_by_key_api, (get_sig))
-} // namespace demo
+} // namespace sig_by_key
 } // namespace plugins
 } // namespace steem

@@ -9,53 +9,42 @@ namespace steem
 {
 namespace plugins
 {
-namespace demo
+namespace sig_by_key
 {
 
 namespace detail
 {
 class sig_by_key_api_impl;
 }
-struct UserSecretKey
-{
-  relicxx::G2 b0;
-  relicxx::G2 b3;
-  relicxx::G2 b4;
-  relicxx::G1 b5;
-};
-struct Sig
-{
-  relicxx::G2 c0;
-  relicxx::G1 c5;
-  relicxx::G2 c6;
-  relicxx::G1 e1;
-  relicxx::G2 e2;
-  relicxx::GT e3;
-  relicxx::ZR x;
-  relicxx::ZR y;
-  relicxx::ZR z;
-};
-struct MasterPublicKey
-{
-  unsigned int l;
-  relicxx::G1 hibeg1;
-  vector<relicxx::G2> hG2;
-  relicxx::GT n;
-};
+
 // get_sig方法的输入参数
 struct get_sig_args
 {
-  relicxx::ZR m;
+  /* relicxx::ZR m;
   relicxx::G2 b0;
   relicxx::G2 b3;
   relicxx::G2 b4;
-  relicxx::G1 b5;
+  relicxx::G1 b5; */
+  string m;
+  string b0;
+  string b3;
+  string b4;
+  string b5;
 };
 
 // get_sig方法的输出参数
 struct get_sig_return
 {
-  Sig sig;
+  // Sig sig;
+  string c0;
+  string c5;
+  string c6;
+  string e1;
+  string e2;
+  string e3;
+  string x;
+  string y;
+  string z;
 };
 
 class sig_by_key_api
@@ -69,10 +58,10 @@ public:
 private:
   std::unique_ptr<detail::sig_by_key_api_impl> my;
 };
-} // namespace demo
+} // namespace sig_by_key
 } // namespace plugins
 } // namespace steem
 
 // 将方法输入、输出参数进行反射
-FC_REFLECT(steem::plugins::demo::get_sig_args, (m)(b0)(b3)(b4)(b5))
-FC_REFLECT(steem::plugins::demo::get_sig_return, (sig))
+FC_REFLECT(steem::plugins::sig_by_key::get_sig_args, (m)(b0)(b3)(b4)(b5))
+FC_REFLECT(steem::plugins::sig_by_key::get_sig_return, (c0)(c5)(c6)(e1)(e2)(e3)(x)(y)(z))
