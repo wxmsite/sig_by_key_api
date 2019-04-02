@@ -140,7 +140,7 @@ public:
 class HibeGS
 {
 public:
-	relicxx::PairingGroup group;
+	
 	HibeGS(){};
 	~HibeGS(){};
 	/**

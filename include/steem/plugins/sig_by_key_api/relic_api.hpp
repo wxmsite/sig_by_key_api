@@ -558,14 +558,14 @@ class relicResourceHandle
 class PairingGroup
 {
   public:
-	PairingGroup();
+	//PairingGroup();
 	// PairingGroup(int ptype,bool init,bn_t o){
 	// 	pairingType = ptype;
 	// 	isInit = init;
 	// 	bn_copy(o,grp_order);
 	// }
 
-	~PairingGroup();
+	//~PairingGroup();
 
 	ZR randomZR() const;
 	G1 randomG1() const;

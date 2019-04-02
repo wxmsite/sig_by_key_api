@@ -1,6 +1,7 @@
 #include <steem/plugins/sig_by_key_api/sig_by_key_api.hpp>
 #include <steem/plugins/sig_by_key_api/sig_by_key_api_plugin.hpp>
 #include <steem/plugins/sig_by_key_api/HibeGS.hpp>
+
 using namespace relicxx;
 using namespace forwardsec;
 namespace steem
@@ -16,9 +17,9 @@ namespace detail
 class sig_by_key_api_impl
 {
 public:
+  PairingGroup group;
   sig_by_key_api_impl() {}
   ~sig_by_key_api_impl() {}
-  relicxx::PairingGroup group;
 
   // 返回用户签名
   get_sig_return get_sig(const get_sig_args &args) const
@@ -34,6 +35,15 @@ public:
     getMpk();
     sign(args.m, usk, sig, mpk);
     final.sig = sig; */
+    final.c0="1111112222222222222222412222222";
+    final.c5="1111112222222222222222412222222";
+    final.c6="1111112222222222222222412222222";
+    final.e1="1111112222222222222222412222222";
+    final.e2="1111112222222222222222412222222";
+    final.e3="1111112222222222222222412222222";
+    final.x="1111112222222222222222412222222";
+    final.y="1111112222222222222222412222222";
+    final.z="1111112222222222222222412222222";
     return final;
   }
   void set_group()
