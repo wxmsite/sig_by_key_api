@@ -24,8 +24,8 @@ public:
   // 返回用户签名
   get_sig_return get_sig(const get_sig_args &args) const
   {
-    get_sig_return final{0};
-    /*  UserSecretKey usk;
+    get_sig_return final;
+    UserSecretKey usk;
     usk.b0 = args.b0;
     usk.b3 = G2(args.b3);
     usk.b4 = args.b4;
@@ -34,16 +34,15 @@ public:
     MasterPublicKey mpk;
     getMpk();
     sign(args.m, usk, sig, mpk);
-    final.sig = sig; */
-    final.c0="1111112222222222222222412222222";
-    final.c5="1111112222222222222222412222222";
-    final.c6="1111112222222222222222412222222";
-    final.e1="1111112222222222222222412222222";
-    final.e2="1111112222222222222222412222222";
-    final.e3="1111112222222222222222412222222";
-    final.x="1111112222222222222222412222222";
-    final.y="1111112222222222222222412222222";
-    final.z="1111112222222222222222412222222";
+    final.c0 = sig.c0;
+    final.c5 = sig.c5;
+    final.c6 = sig.c6;
+    final.e1 = sig.e1;
+    final.e2 = sig.e2;
+    final.e3 = sig.e3;
+    final.x = sig.x;
+    final.y = sig.y;
+    final.z = sig.z;
     return final;
   }
   void set_group()
