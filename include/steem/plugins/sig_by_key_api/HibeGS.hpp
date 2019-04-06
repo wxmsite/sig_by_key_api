@@ -16,13 +16,13 @@ class HibeGS;
 class MasterPublicKey : public virtual baseKey
 {
 
-public:
+  public:
 	MasterPublicKey(){};
 	~MasterPublicKey(){};
 	friend bool operator==(const MasterPublicKey &x, const MasterPublicKey &y)
 	{
 		return ((baseKey)x == (baseKey)y &&
-						x.l == y.l && x.hibeg1 == y.hibeg1 && x.hG2 == y.hG2 && x.n == y.n);
+				x.l == y.l && x.hibeg1 == y.hibeg1 && x.hG2 == y.hG2 && x.n == y.n);
 	}
 	friend bool operator!=(const MasterPublicKey &x, const MasterPublicKey &y)
 	{
@@ -37,7 +37,7 @@ public:
 	void serialize(Archive &ar)
 	{
 		ar(::cereal::virtual_base_class<baseKey>(this),
-			 l, hibeg1, hG2, n);
+		   l, hibeg1, hG2, n);
 	}
 	friend class ::cereal::access;
 	friend class GMPfse;
@@ -46,7 +46,7 @@ public:
 
 class GroupSecretKey
 {
-public:
+  public:
 	friend bool operator==(const GroupSecretKey &x, const GroupSecretKey &y)
 	{
 		return (x.a0 == y.a0 && x.a2 == y.a2 && x.a3 == y.a3 && x.a4 == y.a4 && x.a5 == y.a5);
@@ -57,7 +57,7 @@ public:
 	}
 	void neuter();
 
-protected:
+  protected:
 	relicxx::G2 a0;
 	relicxx::G2 a2;
 	relicxx::G2 a3;
@@ -75,7 +75,7 @@ protected:
 
 class UserSecretKey
 {
-public:
+  public:
 	friend bool operator==(const UserSecretKey &x, const UserSecretKey &y)
 	{
 		return (x.b0 == y.b0 && x.b3 == y.b3 && x.b4 == y.b4 && x.b5 == y.b5);
@@ -106,11 +106,11 @@ public:
  */
 class Sig
 {
-public:
+  public:
 	friend bool operator==(const Sig &x, const Sig &y)
 	{
 		return (x.c0 == y.c0 && x.c5 == y.c5 && x.c6 == y.c6 && x.e1 == y.e1 && x.e2 == y.e2 && x.e3 == y.e3 &&
-						x.x == y.x && x.y == y.y && x.z == y.z);
+				x.x == y.x && x.y == y.y && x.z == y.z);
 	}
 	friend bool operator!=(const Sig &x, const Sig &y)
 	{
@@ -139,8 +139,7 @@ public:
 
 class HibeGS
 {
-public:
-	
+  public:
 	HibeGS(){};
 	~HibeGS(){};
 	/**
@@ -247,13 +246,13 @@ public:
 每个论文提交者共拥有两对公私钥对
 1.rpk、rsk，用于消息的加密和签名
 2.提交论文的（userID,usk）用于签名
-*/
-	void submit_paper(const string &userID,relicxx::G2 b0,relicxx::G2 b3,relicxx::G2 b4, relicxx::G1 b5);
-
-	/*每个人最多有三对公私钥对
+每个人最多有三对公私钥对
 1.rpk,rsk
 2.作为审稿人的公私钥对（userID,usk1)
 3.作为论文提交者的公私钥对（userID，usk2）
 */
+	void submit_paper(const string &userID, relicxx::G2 b0, relicxx::G2 b3, relicxx::G2 b4, relicxx::G1 b5);
+	string g1ToStr(relicxx::G1 g);
+	string g2ToStr(relicxx::G2 g);
 };
 } // namespace forwardsec
