@@ -46,14 +46,34 @@ struct get_sig_return
   string y;
   string z;
 };
-
+struct set_group_args
+{
+  string groupID;
+};
+struct set_group_return
+{
+  bool flag;
+};
+struct join_group_args
+{
+  string groupID;
+  string userID;
+};
+struct join_group_return
+{
+  string b0;
+  string b3;
+  string b4;
+  string b5;
+  
+};
 class sig_by_key_api
 {
 public:
   sig_by_key_api();
   ~sig_by_key_api();
 
-  DECLARE_API((get_sig))
+  DECLARE_API((get_sig)(set_group)(join_group))
 
 private:
   std::unique_ptr<detail::sig_by_key_api_impl> my;
@@ -65,3 +85,7 @@ private:
 // 将方法输入、输出参数进行反射
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_args, (m)(b0)(b3)(b4)(b5))
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_return, (c0)(c5)(c6)(e1)(e2)(e3)(x)(y)(z))
+FC_REFLECT(steem::plugins::sig_by_key::set_group_args, groupID)
+FC_REFLECT(steem::plugins::sig_by_key::set_group_return, flag)
+FC_REFLECT(steem::plugins::sig_by_key::join_group_args, (groupID)(userID))
+FC_REFLECT(steem::plugins::sig_by_key::join_group_return, (b0(b3)(b4)(b5)))
