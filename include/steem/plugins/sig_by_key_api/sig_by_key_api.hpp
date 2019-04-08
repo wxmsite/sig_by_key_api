@@ -15,7 +15,30 @@ namespace detail
 {
 class sig_by_key_api_impl;
 }
-
+struct set_group_args
+{
+  string groupID;
+};
+struct set_group_return
+{
+  string a0;
+  string a2;
+  string a3;
+  string a4;
+  string a5;
+};
+struct join_group_args
+{
+  string groupID;
+  string userID;
+};
+struct join_group_return
+{
+  string b0;
+  string b3;
+  string b4;
+  string b5;
+};
 // get_sig方法的输入参数
 struct get_sig_args
 {
@@ -45,26 +68,14 @@ struct get_sig_return
   string y;
   string z;
 };
-struct set_group_args
+
+struct test_args
 {
-  string groupID;
+  string test;
 };
-struct set_group_return
+struct test_return
 {
-  bool flag;
-};
-struct join_group_args
-{
-  string groupID;
-  string userID;
-};
-struct join_group_return
-{
-  string b0;
-  string b3;
-  string b4;
-  string b5;
-  
+  string result;
 };
 class sig_by_key_api
 {
@@ -72,7 +83,7 @@ public:
   sig_by_key_api();
   ~sig_by_key_api();
 
-  DECLARE_API((get_sig)(set_group)(join_group))
+  DECLARE_API((get_sig)(set_group)(join_group)(test))
 
 private:
   std::unique_ptr<detail::sig_by_key_api_impl> my;
@@ -85,6 +96,8 @@ private:
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_args, (m)(b0)(b3)(b4)(b5))
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_return, (c0)(c5)(c6)(e1)(e2)(e3)(x)(y)(z))
 FC_REFLECT(steem::plugins::sig_by_key::set_group_args, (groupID))
-FC_REFLECT(steem::plugins::sig_by_key::set_group_return, (flag))
+FC_REFLECT(steem::plugins::sig_by_key::set_group_return, (a0)(a2)(a3)(a4)(a5))
 FC_REFLECT(steem::plugins::sig_by_key::join_group_args, (groupID)(userID))
 FC_REFLECT(steem::plugins::sig_by_key::join_group_return, (b0)(b3)(b4)(b5))
+FC_REFLECT(steem::plugins::sig_by_key::test_args, (test))
+FC_REFLECT(steem::plugins::sig_by_key::test_return, (result))

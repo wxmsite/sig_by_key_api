@@ -17,6 +17,7 @@ namespace detail
 class sig_by_key_api_impl
 {
 public:
+  relicResourceHandle relic;
   PairingGroup group;
 
   sig_by_key_api_impl() {}
@@ -32,7 +33,11 @@ public:
     groupSetup(args.groupID, msk, gsk, mpk);
     //返回gsk给group manager,先假设只返回给一个人
     set_group_return final;
-    final.flag = true;
+    final.a0 = g2ToStr(gsk.a0);
+    final.a2 = g2ToStr(gsk.a2);
+    final.a3 = g2ToStr(gsk.a3);
+    final.a4 = g2ToStr(gsk.a4);
+    final.a5 = g1ToStr(gsk.a5);
     return final;
   }
   join_group_return join_group(const join_group_args &args) const
@@ -49,10 +54,10 @@ public:
     usk.b3 = G2(args.b3);
     usk.b4 = G2(args.b4);
     usk.b5 = G1(args.b5);
-    Sig sig;
+    Signature sig;
     MasterPublicKey mpk(getMpk());
-    relicxx::ZR m;
-    strToZR(args.m);
+    relicxx::ZR m = hashListToZR(m);
+
     sign(m, usk, sig, mpk);
 
     final.c0 = g2ToStr(sig.c0);
@@ -65,6 +70,45 @@ public:
     final.x = zrToStr(sig.x);
     final.y = zrToStr(sig.y);
     final.z = zrToStr(sig.z);
+    return final;
+  }
+  test_return test(const test_args &args)
+  {
+    test_return final;
+    MasterPublicKey mpk;
+    relicxx::G2 msk;
+    setup(mpk, msk);
+
+    const set_group_args set_args("science");
+    set_group_return sgr = set_group(set_args);
+    GroupSecretKey gsk;
+    gsk.a0 = strToG2(sgr.a0);
+    gsk.a2 = strToG2(sgr.a2);
+    gsk.a3 = strToG2(sgr.a3);
+    gsk.a4 = strToG2(sgr.a4);
+    gsk.a5 = strToG1(sgr.a5);
+    const join_group_args join_args("‘science"."www");
+    join_group_return jgr = join_group(join_args);
+    UserSecretKey usk;
+    usk.b0 = strToG2(jgr.b0);
+    usk.b3 = strToG2(jgr.b3);
+    usk.b4 = strToG2(jgr.b4);
+    usk.b5 = strToG1(jgr.b5);
+    string str = "123";
+    get_sig_args sig_args(str, jgr.b0, jgr.b3, jgr.b4, jgr.b5);
+    get_sig_return gsr = get_sig(sig_args);
+    Signature sig;
+    sig.c0 = strToG2(args.c0);
+    sig.c5 = strToG1(args.c5);
+    sig.c6 = strToG2(args.c6);
+    sig.e1 = strToG1(args.e1);
+    sig.e2 = strToG2(args.e2);
+    sig.e3 = strToGT(args.e3);
+    sig.x = strToZR(args.x);
+    sig.y = strToZR(args.y);
+    sig.z = strToZR(args.z);
+
+    final.result = "123";
     return final;
   }
 
@@ -114,7 +158,7 @@ private:
     usk.b4 = group.mul(gsk.a4, group.exp(mpk.hG2.at(4), r2));
     usk.b5 = group.mul(gsk.a5, group.exp(mpk.g, r2));
   }
-  void sign(const ZR &m, const UserSecretKey &usk, Sig &sig, const MasterPublicKey &mpk) const
+  void sign(const ZR &m, const UserSecretKey &usk, Signature &sig, const MasterPublicKey &mpk) const
   {
     const ZR gUserID = group.hashListToZR(getUserID());
     const ZR gGroupID = group.hashListToZR(getGroupID());
@@ -142,7 +186,7 @@ private:
     sig.y = r4;
     sig.z = k;
   }
-  bool verify(const ZR &m, const Sig &sig, const string &groupID, const MasterPublicKey &mpk)
+  bool verify(const ZR &m, const Signature &sig, const string &groupID, const MasterPublicKey &mpk)
   {
     const ZR gGroupID = group.hashListToZR(getGroupID());
     const ZR y = sig.y;
@@ -162,7 +206,7 @@ private:
            sig.e3 == group.mul(group.exp(mpk.n, sig.x), group.exp(group.pair(mpk.hibeg1, mpk.g2), k));
   }
 
-  ZR open(const MasterPublicKey &mpk, const GroupSecretKey &gsk, const Sig &sig)
+  ZR open(const MasterPublicKey &mpk, const GroupSecretKey &gsk, const Signature &sig)
   {
     const ZR gUserID = group.hashListToZR(getUserID());
     relicxx::GT t = group.exp(group.pair(mpk.hibeg1, mpk.g2), sig.z);
@@ -198,16 +242,13 @@ private:
   }
   string g1ToStr(relicxx::G1 g) const
   {
-
     int len = 4 * FP_BYTES + 1;
     uint8_t bin[len];
     int l;
     l = g1_size_bin(g.g, 1);
     g1_write_bin(bin, l, g.g, 1);
-
     //bin to str
     string str = "";
-
     for (int i = 0; i < len; i++)
     {
       int m = atoi(to_string((unsigned int)bin[i]).c_str());
@@ -220,6 +261,20 @@ private:
     cout << str << endl;
     cout << str.length() << " " << len << endl;
     return str;
+  }
+  relicxx::G1 strToG1(string str)
+  {
+    relicx::G1 g;
+    int len = 4 * FP_BYTES + 1;
+    uint8_t bin[len];
+    for (int i = 0; i < str.length(); i += 2)
+    {
+      std::string pair = str.substr(i, 2);
+      cout << pair;
+      bin2[i / 2] = ::strtol(pair.c_str(), 0, 16);
+    }
+    g1_read_bin(g.g, bin, l);
+    return g;
   }
   string g2ToStr(relicxx::G2 g) const
   {
@@ -244,6 +299,20 @@ private:
     cout << str << endl;
     cout << str.length() << " " << len << endl;
     return str;
+  }
+  relicxx::G2 strToG2(string str)
+  {
+    relicx::G2 g;
+    int len = 4 * FP_BYTES + 1;
+    uint8_t bin[len];
+    for (int i = 0; i < str.length(); i += 2)
+    {
+      std::string pair = str.substr(i, 2);
+      cout << pair;
+      bin2[i / 2] = ::strtol(pair.c_str(), 0, 16);
+    }
+    g2_read_bin(g.g, bin, l);
+    return g;
   }
   string gtToStr(relicxx::GT g) const
   {
@@ -273,6 +342,20 @@ private:
     cout << str << endl;
     cout << str.length() << " " << len << endl;
     return str;
+  }
+  relicxx::GT strToGt(string str)
+  {
+    relicx::GT g;
+    int len = 4 * FP_BYTES + 1;
+    uint8_t bin[len];
+    for (int i = 0; i < str.length(); i += 2)
+    {
+      std::string pair = str.substr(i, 2);
+      cout << pair;
+      bin2[i / 2] = ::strtol(pair.c_str(), 0, 16);
+    }
+    gt_read_bin(g.g, bin, l);
+    return g;
   }
   string zrToStr(relicxx::ZR zr) const
   {
@@ -337,7 +420,7 @@ sig_by_key_api::sig_by_key_api() : my(new detail::sig_by_key_api_impl())
 
 sig_by_key_api::~sig_by_key_api() {}
 
-// 需要注意创建sig_by_key的时机，因为sig_by_key的构造函数中会调用JSON RPC插件去注册API，因此
+// 需要注意创建sig_by_key的时机，因W为sig_by_key的构造函数中会调用JSON RPC插件去注册API，因此
 // 需要等JSON RPC先初始化好，plugin_initialize被调用时，会先注册sig_by_key_api_plugin的依赖
 // 模块，因此可以确保此时JSON RPC插件此时已经注册完毕。
 void sig_by_key_api_plugin::plugin_initialize(const appbase::variables_map &options)
@@ -345,7 +428,7 @@ void sig_by_key_api_plugin::plugin_initialize(const appbase::variables_map &opti
   api = std::make_shared<sig_by_key_api>();
 }
 
-DEFINE_LOCKLESS_APIS(sig_by_key_api, (get_sig)(set_group)(join_group))
+DEFINE_LOCKLESS_APIS(sig_by_key_api, (get_sig)(set_group)(join_group)(test))
 } // namespace sig_by_key
 } // namespace plugins
 } // namespace steem

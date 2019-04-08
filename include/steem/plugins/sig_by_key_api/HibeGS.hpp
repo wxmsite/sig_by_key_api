@@ -103,15 +103,15 @@ class UserSecretKey
  * @param {type} 
  * @return: 
  */
-class Sig
+class Signature
 {
   public:
-	friend bool operator==(const Sig &x, const Sig &y)
+	friend bool operator==(const Signature &x, const Signature &y)
 	{
 		return (x.c0 == y.c0 && x.c5 == y.c5 && x.c6 == y.c6 && x.e1 == y.e1 && x.e2 == y.e2 && x.e3 == y.e3 &&
 				x.x == y.x && x.y == y.y && x.z == y.z);
 	}
-	friend bool operator!=(const Sig &x, const Sig &y)
+	friend bool operator!=(const Signature &x, const Signature &y)
 	{
 		return !(x == y);
 	}
