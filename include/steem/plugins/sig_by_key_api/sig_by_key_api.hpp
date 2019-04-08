@@ -4,7 +4,6 @@
 #include <fc/optional.hpp>
 #include <fc/variant.hpp>
 #include <fc/vector.hpp>
-#include "relic_api.hpp"
 namespace steem
 {
 namespace plugins
@@ -85,7 +84,7 @@ private:
 // 将方法输入、输出参数进行反射
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_args, (m)(b0)(b3)(b4)(b5))
 FC_REFLECT(steem::plugins::sig_by_key::get_sig_return, (c0)(c5)(c6)(e1)(e2)(e3)(x)(y)(z))
-FC_REFLECT(steem::plugins::sig_by_key::set_group_args, groupID)
-FC_REFLECT(steem::plugins::sig_by_key::set_group_return, flag)
+FC_REFLECT(steem::plugins::sig_by_key::set_group_args, (groupID))
+FC_REFLECT(steem::plugins::sig_by_key::set_group_return, (flag))
 FC_REFLECT(steem::plugins::sig_by_key::join_group_args, (groupID)(userID))
-FC_REFLECT(steem::plugins::sig_by_key::join_group_return, (b0(b3)(b4)(b5)))
+FC_REFLECT(steem::plugins::sig_by_key::join_group_return, (b0)(b3)(b4)(b5))

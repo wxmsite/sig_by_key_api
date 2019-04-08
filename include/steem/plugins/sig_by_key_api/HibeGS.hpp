@@ -57,7 +57,6 @@ class GroupSecretKey
 	}
 	void neuter();
 
-  protected:
 	relicxx::G2 a0;
 	relicxx::G2 a2;
 	relicxx::G2 a3;

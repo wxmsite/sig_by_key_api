@@ -16,7 +16,7 @@
 #include <type_traits> // for static assert
 #include <cstring>	 // for memcpy
 #include <algorithm>   // for std::fill
-
+using namespace std;
 // define classes
 #ifdef __cplusplus
 // gmp.h uses __cplusplus to decide if it's right to include c++ headers.
@@ -190,9 +190,10 @@ class ZR
 	template <class Archive>
 	void load(Archive &ar)
 	{
-		std::vector<uint8_t> data(BN_BYTES);
+		int len = CEIL(RELIC_BN_BITS, 8);
+		std::vector<uint8_t> data(len);
 		ar(data);
-		bn_read_bin(z, &data[0], BN_BYTES);
+		bn_read_bin(z, &data[0], len);
 	}
 	//		template <>
 	//		void save<cereal::JSONOutputArchive>(cereal::JSONOutputArchive & ar) const{
@@ -272,6 +273,7 @@ class G1
 	}
 	G1(string str)
 	{
+		int len = 4 * FP_BYTES + 1;
 		uint8_t bin[len];
 		int l = g1_size_bin(g, 1);
 		for (int i = 0; i < str.length(); i += 2)
@@ -280,7 +282,7 @@ class G1
 			cout << pair;
 			bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
 		}
-		g1_read_bin(g, bin2, l);
+		g1_read_bin(g, bin, l);
 	}
 	~G1()
 	{
@@ -372,6 +374,7 @@ class G2
 	}
 	G2(string str)
 	{
+		int len = 4 * FP_BYTES + 1;
 		uint8_t bin[len];
 		int l = g2_size_bin(g, 1);
 		for (int i = 0; i < str.length(); i += 2)
@@ -380,7 +383,7 @@ class G2
 			cout << pair;
 			bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
 		}
-		g2_read_bin(g, bin2, l);
+		g2_read_bin(g, bin, l);
 	}
 	G2(const G2 &w)
 	{
@@ -581,14 +584,14 @@ class relicResourceHandle
 class PairingGroup
 {
   public:
-	//PairingGroup();
+	PairingGroup();
 	// PairingGroup(int ptype,bool init,bn_t o){
 	// 	pairingType = ptype;
 	// 	isInit = init;
 	// 	bn_copy(o,grp_order);
 	// }
 
-	//~PairingGroup();
+	~PairingGroup();
 
 	ZR randomZR() const;
 	G1 randomG1() const;
