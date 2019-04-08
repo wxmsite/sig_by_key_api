@@ -57,7 +57,7 @@ struct get_sig_args
 // get_sig方法的输出参数
 struct get_sig_return
 {
-  // Sig sig;
+  // Signature sig;
   string c0;
   string c5;
   string c6;
