@@ -271,19 +271,6 @@ class G1
 		g1_copy(g, w.g);
 		isInit = true;
 	}
-	G1(string str)
-	{
-		int len = 4 * FP_BYTES + 1;
-		uint8_t bin[len];
-		int l = g1_size_bin(g, 1);
-		for (int i = 0; i < str.length(); i += 2)
-		{
-			std::string pair = str.substr(i, 2);
-			cout << pair;
-			bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
-		}
-		g1_read_bin(g, bin, l);
-	}
 	~G1()
 	{
 		if (isInit)
@@ -372,19 +359,7 @@ class G2
 		isInit = true;
 		g2_set_infty(g);
 	}
-	G2(string str)
-	{
-		int len = 4 * FP_BYTES + 1;
-		uint8_t bin[len];
-		int l = g2_size_bin(g, 1);
-		for (int i = 0; i < str.length(); i += 2)
-		{
-			std::string pair = str.substr(i, 2);
-			cout << pair;
-			bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
-		}
-		g2_read_bin(g, bin, l);
-	}
+
 	G2(const G2 &w)
 	{
 		g2_inits(g);

@@ -68,7 +68,12 @@ struct get_sig_return
   string y;
   string z;
 };
-
+struct open_args
+{
+};
+struct open_return
+{
+};
 struct test_args
 {
   string test;
