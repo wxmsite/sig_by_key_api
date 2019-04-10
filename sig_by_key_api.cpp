@@ -22,20 +22,20 @@ public:
   MasterPublicKey mpk;
   relicxx::G2 msk;
   GroupSecretKey gsk;
+  UserSecretKey usk;
 
   sig_by_key_api_impl() {}
   ~sig_by_key_api_impl() {}
 
-  set_group_return set_group(const set_group_args &args) const
+  set_group_return set_group(const set_group_args &args)
   {
     //判断群组是否存在等业务逻辑
     //如果存在,获取msk
-    relicxx::G2 msk(getMsk());
-    GroupSecretKey gsk;
     MasterPublicKey mpk(getMpk());
     groupSetup(args.groupID, msk, gsk, mpk);
     //返回gsk给group manager,先假设只返回给一个人
     set_group_return final;
+
     final.a0 = g2ToStr(gsk.a0);
     final.a2 = g2ToStr(gsk.a2);
     final.a3 = g2ToStr(gsk.a3);
@@ -43,13 +43,14 @@ public:
     final.a5 = g1ToStr(gsk.a5);
     return final;
   }
-  join_group_return join_group(const join_group_args &args) const
+  join_group_return join_group(const join_group_args &args)
   {
     string groupID = args.groupID;
     string userID = args.userID;
-    UserSecretKey usk;
+
     join(groupID, userID, gsk, usk, mpk);
     join_group_return final;
+
     final.b0 = g2ToStr(usk.b0);
     final.b3 = g2ToStr(usk.b3);
     final.b4 = g2ToStr(usk.b4);
@@ -57,7 +58,7 @@ public:
     return final;
   }
   // 返回用户签名
-  get_sig_return get_sig(const get_sig_args &args) const
+  get_sig_return get_sig(const get_sig_args &args)
   {
     get_sig_return final;
     UserSecretKey usk;
@@ -68,16 +69,17 @@ public:
     Signature sig;
     relicxx::ZR m = group.hashListToZR(args.m);
     sign(m, usk, sig, mpk);
+
     final.c0 = g2ToStr(sig.c0);
     final.c5 = g1ToStr(sig.c5);
     final.c6 = g2ToStr(sig.c6);
     final.e1 = g1ToStr(sig.e1);
     final.e2 = g2ToStr(sig.e2);
     final.e3 = gtToStr(sig.e3);
-
     final.x = zrToStr(sig.x);
     final.y = zrToStr(sig.y);
     final.z = zrToStr(sig.z);
+
     return final;
   }
   test_return test(const test_args &args)
@@ -88,26 +90,32 @@ public:
     const set_group_args set_args{.groupID = groupID};
     set_group_return sgr = set_group(set_args);
     cout << "test" << endl;
-    gsk.a0 = strToG2(sgr.a0);
-    gsk.a2 = strToG2(sgr.a2);
-    gsk.a3 = strToG2(sgr.a3);
-    gsk.a4 = strToG2(sgr.a4);
-    gsk.a5 = strToG1(sgr.a5);
+
+    GroupSecretKey gsk2;
+    gsk2.a0 = strToG2(sgr.a0);
+    gsk2.a2 = strToG2(sgr.a2);
+    gsk2.a3 = strToG2(sgr.a3);
+    gsk2.a4 = strToG2(sgr.a4);
+    gsk2.a5 = strToG1(sgr.a5);
+    cout << "gsk:::" << (gsk.a0 == gsk2.a0) << (gsk.a2 == gsk2.a2) << (gsk.a3 == gsk2.a3)
+         << (gsk.a4 == gsk2.a4) << (gsk.a5 == gsk2.a5);
     cout << "test2" << endl;
     const join_group_args join_args{.groupID = "science", .userID = "www"};
     join_group_return jgr = join_group(join_args);
-    UserSecretKey usk;
+    UserSecretKey usk2;
     cout << "test3" << endl;
-    usk.b0 = strToG2(jgr.b0);
-    usk.b3 = strToG2(jgr.b3);
-    usk.b4 = strToG2(jgr.b4);
-    usk.b5 = strToG1(jgr.b5);
+    usk2.b0 = strToG2(jgr.b0);
+    usk2.b3 = strToG2(jgr.b3);
+    usk2.b4 = strToG2(jgr.b4);
+    usk2.b5 = strToG1(jgr.b5);
+    cout << "usk:::" << (usk.b0 == usk2.b0) << (usk.b3 == usk2.b3)
+         << (usk.b4 == usk2.b4) << (usk.b5 == usk2.b5);
     cout << "test4" << endl;
     string str = "123";
     get_sig_args sig_args{.m = str, .b0 = jgr.b0, .b3 = jgr.b3, .b4 = jgr.b4, .b5 = jgr.b5};
     get_sig_return gsr = get_sig(sig_args);
     Signature sig;
-    cout << "test5";
+    cout << "test5" << endl;
     sig.c0 = strToG2(gsr.c0);
     sig.c5 = strToG1(gsr.c5);
     sig.c6 = strToG2(gsr.c6);
@@ -117,15 +125,31 @@ public:
     sig.x = strToZR(gsr.x);
     sig.y = strToZR(gsr.y);
     sig.z = strToZR(gsr.z);
+
     cout << "test6" << endl;
-    if (open(mpk, gsk, sig) == group.hashListToZR("www"))
+
+    if (open(mpk, gsk, sig) == group.hashListToZR(getUserID()))
       cout << "open true" << endl;
     if (verify(group.hashListToZR(str), sig, "science", mpk))
       final.result = "true";
-    /* if (open(mpk, gsk, sig) == group.hashListToZR("www") && verify(group.hashListToZR(str), sig, "science", mpk))
-      final.result = "true"; */
     else
       final.result = "false";
+
+    /* GroupSecretKey gsk;
+    UserSecretKey usk;
+    Signature sig;
+    const relicxx::ZR m = group.randomZR();
+    groupSetup("science", msk, gsk, mpk);
+    join("science", "www", gsk, usk, mpk);
+    sign(m, usk, sig, mpk);
+    verify(m, sig, "science", mpk);
+    if (open(mpk, gsk, sig) == group.hashListToZR("www") && verify(m, sig, "science", mpk))
+      final.result = "true";
+    else
+    {
+      final.result = "false";
+    }
+  */
     return final;
   }
 
@@ -175,7 +199,7 @@ private:
     usk.b4 = group.mul(gsk.a4, group.exp(mpk.hG2.at(4), r2));
     usk.b5 = group.mul(gsk.a5, group.exp(mpk.g, r2));
   }
-  void sign(const ZR &m, const UserSecretKey &usk, Signature &sig, const MasterPublicKey &mpk) const
+  void sign(const ZR &m, const UserSecretKey &usk, Signature &sig, const MasterPublicKey &mpk)
   {
     const ZR gUserID = group.hashListToZR(getUserID());
     const ZR gGroupID = group.hashListToZR(getGroupID());
@@ -239,10 +263,8 @@ private:
     else
       return group.randomZR();
   }
-  MasterPublicKey getMpk() const
+  MasterPublicKey getMpk()
   {
-    relicxx::G2 msk;
-    MasterPublicKey mpk;
     setup(mpk, msk);
     return mpk;
   }
@@ -284,7 +306,7 @@ private:
     cout << str << endl; 
     cout << str.length() << " " << len << endl;
     */
-    cout << "g1tostr" << endl;
+
     return str;
   }
   relicxx::G1 strToG1(string str) const
@@ -301,7 +323,7 @@ private:
       bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
     }
     g1_read_bin(g.g, bin, l);
-    cout << "strtog1" << endl;
+
     return g;
   }
   string g2ToStr(relicxx::G2 g) const
@@ -326,7 +348,7 @@ private:
     cout << str << endl; 
     cout << str.length() << " " << len << endl;
     */
-    cout << "g2tostr" << endl;
+
     return str;
   }
   relicxx::G2 strToG2(string str) const
@@ -343,7 +365,7 @@ private:
       bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
     }
     g2_read_bin(g.g, bin, l);
-    cout << "strtog2" << endl;
+
     return g;
   }
   string gtToStr(relicxx::GT g) const
@@ -368,7 +390,7 @@ private:
     cout << str << endl; 
     cout << str.length() << " " << len << endl;
     */
-    cout << "gttostr" << endl;
+
     return str;
   }
   relicxx::GT strToGT(string str) const
@@ -385,7 +407,7 @@ private:
       bin[i / 2] = ::strtol(pair.c_str(), 0, 16);
     }
     gt_read_bin(g.g, bin, l);
-    cout << "strtogt" << endl;
+
     return g;
   }
   string zrToStr(relicxx::ZR zr) const
@@ -407,7 +429,7 @@ private:
     /*  cout << endl;
     cout << str << endl;
     cout << str.length() << " " << len << endl; */
-    cout << "zrtostr" << endl;
+
     return str;
   }
   relicxx::ZR strToZR(string str) const
@@ -423,7 +445,7 @@ private:
       bin2[i / 2 + 96] = ::strtol(pair.c_str(), 0, 16);
     }
     bn_read_bin(zr.z, bin2, len);
-    cout << "strtozr" << endl;
+
     return zr;
   }
 
