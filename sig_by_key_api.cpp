@@ -1,7 +1,7 @@
 #include <steem/plugins/sig_by_key_api/sig_by_key_api.hpp>
 #include <steem/plugins/sig_by_key_api/sig_by_key_api_plugin.hpp>
 #include <steem/plugins/sig_by_key_api/HibeGS.hpp>
-
+#include <iostream>
 using namespace relicxx;
 using namespace forwardsec;
 namespace steem
@@ -31,7 +31,7 @@ public:
   {
     //判断群组是否存在等业务逻辑
     //如果存在,获取msk
-    MasterPublicKey mpk(getMpk());
+    set_up();
     groupSetup(args.groupID, msk, gsk, mpk);
     //返回gsk给group manager,先假设只返回给一个人
     set_group_return final;
@@ -89,7 +89,6 @@ public:
     string groupID = "science";
     const set_group_args set_args{.groupID = groupID};
     set_group_return sgr = set_group(set_args);
-    cout << "test" << endl;
 
     GroupSecretKey gsk2;
     gsk2.a0 = strToG2(sgr.a0);
@@ -97,25 +96,23 @@ public:
     gsk2.a3 = strToG2(sgr.a3);
     gsk2.a4 = strToG2(sgr.a4);
     gsk2.a5 = strToG1(sgr.a5);
-    cout << "gsk:::" << (gsk.a0 == gsk2.a0) << (gsk.a2 == gsk2.a2) << (gsk.a3 == gsk2.a3)
-         << (gsk.a4 == gsk2.a4) << (gsk.a5 == gsk2.a5);
-    cout << "test2" << endl;
+
     const join_group_args join_args{.groupID = "science", .userID = "www"};
     join_group_return jgr = join_group(join_args);
     UserSecretKey usk2;
-    cout << "test3" << endl;
+
     usk2.b0 = strToG2(jgr.b0);
     usk2.b3 = strToG2(jgr.b3);
     usk2.b4 = strToG2(jgr.b4);
     usk2.b5 = strToG1(jgr.b5);
     cout << "usk:::" << (usk.b0 == usk2.b0) << (usk.b3 == usk2.b3)
          << (usk.b4 == usk2.b4) << (usk.b5 == usk2.b5);
-    cout << "test4" << endl;
+
     string str = "123";
     get_sig_args sig_args{.m = str, .b0 = jgr.b0, .b3 = jgr.b3, .b4 = jgr.b4, .b5 = jgr.b5};
     get_sig_return gsr = get_sig(sig_args);
     Signature sig;
-    cout << "test5" << endl;
+
     sig.c0 = strToG2(gsr.c0);
     sig.c5 = strToG1(gsr.c5);
     sig.c6 = strToG2(gsr.c6);
@@ -125,8 +122,6 @@ public:
     sig.x = strToZR(gsr.x);
     sig.y = strToZR(gsr.y);
     sig.z = strToZR(gsr.z);
-
-    cout << "test6" << endl;
 
     if (open(mpk, gsk, sig) == group.hashListToZR(getUserID()))
       cout << "open true" << endl;
@@ -229,7 +224,6 @@ private:
   }
   bool verify(const ZR &m, const Signature &sig, const string &groupID, const MasterPublicKey &mpk)
   {
-    cout << "verify" << endl;
     const ZR gGroupID = group.hashListToZR(groupID);
     const ZR y = sig.y;
     const ZR t = group.randomZR();
@@ -241,11 +235,6 @@ private:
     relicxx::GT delta3 = group.mul(M, group.exp(group.pair(mpk.hibeg1, mpk.g2), t));
     relicxx::GT result = group.mul(delta3, group.div(group.pair(sig.c5, d2), group.pair(d1, sig.c0)));
 
-    cout << (M == result);
-    cout << (sig.c6 == group.mul(group.exp(mpk.hG2.at(2), sig.x), group.exp(mpk.hG2.at(4), y)));
-    cout << (sig.e1 == group.exp(mpk.g, k));
-    cout << (sig.e2 == group.exp(group.mul(mpk.hG2.at(0), group.exp(mpk.hG2.at(1), gGroupID)), k));
-    cout << (sig.e3 == group.mul(group.exp(mpk.n, sig.x), group.exp(group.pair(mpk.hibeg1, mpk.g2), k)));
     return M == result &&
            sig.c6 == group.mul(group.exp(mpk.hG2.at(2), sig.x), group.exp(mpk.hG2.at(4), y)) &&
            sig.e1 == group.exp(mpk.g, k) &&
@@ -263,10 +252,30 @@ private:
     else
       return group.randomZR();
   }
-  MasterPublicKey getMpk()
+  void set_up()
   {
-    setup(mpk, msk);
-    return mpk;
+    mpk.l = 4;
+    string g = "021780706f0a7afbfc7e5c2fde178c4a0fa86ff9612c233743cadc96c2e85b99eb000000000000000a00000000000000736369656e636500207e580300000000f03b9904000000000384b2c61a7f00006077e8c61a7f0000e05429c61a7f00000a000000000000004b33b2c61a7f0000207e5803000000006077e8c61a7f0000a0";
+    string g2 = "02675cbaedec16f50d576a451f813e28d235f8176ab3c748c3e7071197c9c300e404674f3d853347d6f91532a2ca2d27697324275c63c8ed3b8931458e21c394753b9904000000000384b2c61a7f00006077e8c61a7f0000e05429c61a7f00000a000000000000004b33b2c61a7f0000207e5803000000000fab4dc81a7f000043";
+    string hibeg1 = "022fcc465af6de5155ecbe906c11a221e6c4ea065c94b64f9c128c69e45127a7f65429c61a7f00000700000000000000f03b9904000000007a5c55c71a7f000067687a020000000000000000000000006077e8c61a7f0000e05429c61a7f00000100000000000000207e580300000000207e580300000000000fbb96801eca69a0";
+    string u0 = "038c714d1457e3630c45d809b7a9db159a7d18d4a2e981f492b017a44d75082ede4d4e0d863b3e77731c85a74acb8c187be285a03d4b1cb79b5c8b099ea3ce656bd2c902000000000000000000000000287e580300000000c66155c71a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f000038";
+    string u1 = "033f62f51761b537d105b9343871fe486b582e567bc0f9ee605de4f53f88639022a4cb9b83d85504632770869911cdb388b2b1082168fec8a244f80c44cf22560bd2c902000000000000000000000000287e580300000000c66155c71a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f0000a0";
+    string u2 = "0391aaf47f42654a1c1cac4267b0e3df1985da3e0c341d8ab12d29597af64bddcd6657d290c86175522cd2da1c7652e4fbd381445332d6b5977550abf320c0fb98d2c902000000000000000000000000287e580300000000c66155c71a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f000060";
+    string u3 = "035a3ed74532bda53e84441f4571088468b458c4b83cf2294e4360b85468f6f6835a69507209cfbabbc105f1b8d4fdeecf06093d11c773e3bfa16df653a93fdb10d2c902000000000000000000000000287e580300000000c66155c71a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f000065";
+    string u4 = "03023afaeeb25eb44de70edee8b47f24f681592f820c4e5874837fb09f2bdfb05c3661488e917ea489240c3f2b2f4c202ab314f4ad0281cd611e90e7568d584f25d2c902000000000000000000000000287e580300000000c66155c71a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f0000c3";
+    string n = "0066f837d6aaf4d69618917009d0b3c61dc670e614a50d98788cd22400f93c6f22fc9fd14feaff20528338278548c68b71f2a60caed5c8568a61301de0c3256997d26fcf602973721435f651bc6ca3d9230ad04d0b261ae18ca2ab9ae3de01097d518908191408010a85b1ef849579f68286da897c699f394fc48cfb8c1ce3e4a32fa6404a88d40b6d6f571434d7fff3a376c16f25848e8cc3a3cd09236dead65ad8203d97d42b68e76bd2dda61e4edebd1dac6ef620af540bb5a776720633537808a32b1f57b7427849becb1ad34577f089fa78e471fc273d9c6ed9b950aaec23f2be2d40fdb004b6ab3b16c7550eaebc585921acc0acf8eefc928356bdf553801800f40c7f0000207e580300000000287e580300000000b03a990400000000c05429c61a7f0000020000000000000010040000000000007a5c55c71a7f0000d59991020000000000000000000000006077e8c61a7f0000e05429c61a7f00000100000000000000207e580300000000207e580300000000000fbb96801eca69";
+    string smsk = "02852d3c40a12f7b1b1d930b0324d90c7a2bd28b4eda25e0210318d2c4d9b33eacb32c094e3b48c78cfaf99272b69c5004b072e725145d1624ed35177810e022d8687a020000000000000000000000006077e8c61a7f0000e05429c61a7f00000100000000000000207e580300000000207e5803000000000fab4dc81a7f000083";
+    mpk.g = strToG1(g);
+    mpk.g2 = strToG2(g2);
+    mpk.hibeg1 = strToG1(hibeg1);
+    mpk.hG2.push_back(strToG2(u0));
+    mpk.hG2.push_back(strToG2(u1));
+    mpk.hG2.push_back(strToG2(u2));
+    mpk.hG2.push_back(strToG2(u3));
+    mpk.hG2.push_back(strToG2(u4));
+    mpk.n = strToGT(n);
+    msk = strToG2(smsk);
+    //setup(mpk, msk);
   }
   string getGroupID() const
   {
